@@ -1,0 +1,23 @@
+import re
+import requests
+from bs4 import BeautifulSoup
+
+headers = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"}
+
+for i in range(1,10):
+    url = "http://browse.auction.co.kr/search?keyword=%ec%86%90%eb%a7%88%ec%82%ac%ec%a7%80%ea%b8%b0&itemno=&nickname=&encKeyword=%25EC%2586%2590%25EB%25A7%2588%25EC%2582%25AC%25EC%25A7%2580%25EA%25B8%25B0&arraycategory=&frm=&dom=auction&isSuggestion=No&retry=&k=32&p={}".format(i)
+
+    res = requests.get(url, headers = headers)
+    soup = BeautifulSoup(res.text, "lxml")
+
+    items = soup.find_all("div", attrs={"class":"section--itemcard_info"})
+
+    for item in items:
+        name = item.find("span", attrs={"class":"text--title"}).get_text()
+        price = item.find("strong", attrs={"class": "text--price_seller"}).get_text()
+        delivery = item.find("span", attrs={"class": "text--addinfo"}).get_text()
+        if delivery == "무료배송":
+            delivery = 0
+        elif delivery != "무료배송":
+            delivery = delivery[4:-1]
+        print("Auction","|",name,"|",price,"|",delivery)
